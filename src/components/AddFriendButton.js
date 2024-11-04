@@ -1,18 +1,39 @@
 "use client"
 import { addFriendValidator } from "@/lib/validations/addFriend";
 import Button from "./ui/Button";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import {zodResolver} from '@hookform/resolvers/zod'
 const AddFriendButton = ({})=>{
+    const [showSuccessState, setShowSuccessState] = useState(false)
+    const {register, handleSubmit, setError, formState:{errors}}= useForm({
+      resolver:zodResolver(addFriendValidator),
+    })
     const addFriend = async(email)=>{
         try{
            const validatedEmail = addFriendValidator.parse({email})
-           await
+           await axios.post('api/friends/add', {
+            email: validatedEmail,
+           })
+           setShowSuccessState(true)
         }
         catch(error){
-
+             if(error instanceof z.ZodError){
+               setError('email', {message:error.message})
+               return
+             }
+             if(error instanceof AxiosError){
+               setError('email', {message:error.response?.data})
+               return
+             }
+             setError('email',{message:'something went wrong'})
         }
     }
+    const onSubmit = ()=>{
+      addFriend(data.email)
+    }
    return(
-    <form className="max-w-sm">
+    <form onSubmit={handleSubmit(onSubmit)} className="max-w-sm">
      <label
       htmlFor="email"
       className="block text-sm font-medium leading-6 text-green-900">
@@ -23,6 +44,10 @@ const AddFriendButton = ({})=>{
       placeholder="you@example.com"/>
       <Button>Add</Button>
      </div>
+     <p className="mt-1 text-sm text-red-600">{errors.email?.message}</p>
+     {showSuccessState ? (
+      <p className="mt-1 text-sm text-green-600">Friend request sent</p>
+     ):null}
     </form>
    )
 }
