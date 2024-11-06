@@ -16,12 +16,15 @@ export async function POST(req){
     )
      const data = (await RESTResponse.json())
      const idToAdd = data.result
-     if(!idToAdd===session.user.id){
-        return new Response('You can not add yourself as a friend', {status:400})
+     if(!idToAdd){
+      return new Response('This person does not exist',{status:400})
      }
      const session = await getServerSession(authOptions)
      if(!session){
         return new Response('Unauthorized', {status:401})
+     }
+     if(idToAdd===session.user.id){
+        return new Response('You can not add yourself as a friend', {status:400})
      }
      console.log(data)
     }
