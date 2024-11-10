@@ -31,11 +31,11 @@ export async function POST(req){
      if(idToAdd===session.user.id){
         return new Response('You can not add yourself as a friend', {status:400})
      }
-     const isAlreadyAdded = (await fetchRedis(
+     const isAlreadyAdded = await fetchRedis(
         'sismember',
         `user:${idToAdd}:incoming_friend_requests`,
         session.user.id
-     ))
+     )
      if(isAlreadyAdded){
         return new Response('Already added this user', {status:400}) 
      }
@@ -49,7 +49,7 @@ export async function POST(req){
      }
      // send friend request
 
-     db.sadd(`user:${idToAdd}:incoming_friend_request`, session.user.id)
+      db.sadd(`user:${idToAdd}:incoming_friend_request`, session.user.id)
      return new Response('OK')
     //  console.log(data)
     }
