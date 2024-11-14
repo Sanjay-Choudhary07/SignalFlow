@@ -5,6 +5,8 @@ import Link from "next/link"
 import { notFound } from "next/navigation"
 import Image from "next/image"
 import SignOutButton from "@/components/SignOutButton"
+import FriendRequestsSidebarOptions from "@/components/FriendRequestsSidebarOptions"
+import { fetchRedis } from "@/helpers/redis"
 const sidebarOptions=[
   {
     id:1,
@@ -16,6 +18,11 @@ const sidebarOptions=[
 const Layout = async({children})=>{
       const session = await getServerSession(authOptions)
       if(!session) notFound()
+
+        const unseenRequestCount = (await fetchRedis(
+          'smembers',
+          `user:${session.user.id}:incoming_friend_requests`
+        )).length
 
         return <div className="w-full flex h-screen">
         <div className="h-full flex w-full max-w-xs grow flex-col gap-y-5 overflow-y-auto border-r border-gray-200 bg-white px-6">    
@@ -50,9 +57,15 @@ const Layout = async({children})=>{
                 })}
               </ul>
              </li>
+
+            <li>
+              <FriendRequestsSidebarOptions sessionId={session.user.id} initialUnseenRequestCount={unseenRequestCount}/>
+            </li>
+
             <li className="-mx-6 mt-auto flex items-center">
              <div className="flex flex-1 items-center gap-x-4 px-6 py-3 text-sm font-semibold leading-6 text-gray-900">
               <div className="relative h-8 w-8 bg-gray-50">
+                {console.log(session.user.image)}
                 <Image
                  fill
                  referrerPolicy='no-referrer'
@@ -63,6 +76,7 @@ const Layout = async({children})=>{
               </div>
               <span className="sr-only">Your Profile</span>
               <div className="flex flex-col">
+                {/* console.log(session.user.image) */}
                <span aria-hidden='true'>{session.user.name}</span>
                <span className="text-xs text-zinc-400" aria-hidden='true'>{session.user.email}</span>
               </div>
