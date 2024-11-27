@@ -1,8 +1,8 @@
-const { getToken } = require('next-auth/jwt');
-const { withAuth } = require('next-auth/middleware');
-const { NextResponse } = require('next/server');
+import { getToken } from 'next-auth/jwt';
+import { withAuth } from 'next-auth/middleware';
+import { NextResponse } from 'next/server';
 
-module.exports = withAuth(
+export default withAuth(
   async function middleware(req) {
     const pathname = req.nextUrl.pathname;
 
@@ -40,6 +40,6 @@ module.exports = withAuth(
   }
 );
 
-module.exports.config = {
+export const config = {
   matcher: ['/', '/login', '/dashboard/:path*'],
 };
