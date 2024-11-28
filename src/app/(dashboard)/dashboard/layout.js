@@ -8,6 +8,7 @@ import SignOutButton from "@/components/SignOutButton"
 import FriendRequestsSidebarOptions from "@/components/FriendRequestsSidebarOptions"
 import { fetchRedis } from "@/helpers/redis"
 import { getFriendsByUserId } from "@/helpers/getFriendsByUserId"
+import SidebarChatList from "@/components/SidebarChatList"
 const sidebarOptions=[
   {
     id:1,
@@ -32,11 +33,15 @@ const Layout = async({children})=>{
         <Link href="/dashboard" className="flex h-16 shrink-0 items-center">
         <Icons.Logo className="h-8 w-auto text-indigo-600"/>
         </Link>
-        <div className="text-xs font-semibold leading-6 text-gray-400">
+        {friends.length > 0 ? (
+          <div className="text-xs font-semibold leading-6 text-gray-400">
           Your Chats</div>
+        ):null}
           <nav className="flex flex-1 flex-col">
             <ul role="list" className="flex flex-1 flex-col gap-y-7">
-             <li>Chats that this user has</li>
+             <li>
+              <SidebarChatList sessionId={session.user.id} friends={friends}/>
+             </li>
              <li>
               <div className="text-xs font-semibold leading-6 text-gray-400">
                Overview
@@ -58,12 +63,12 @@ const Layout = async({children})=>{
                     </li>
                   )
                 })}
-              </ul>
-             </li>
 
             <li>
               <FriendRequestsSidebarOptions sessionId={session.user.id} initialUnseenRequestCount={unseenRequestCount}/>
             </li>
+              </ul>
+             </li>
 
             <li className="-mx-6 mt-auto flex items-center">
              <div className="flex flex-1 items-center gap-x-4 px-6 py-3 text-sm font-semibold leading-6 text-gray-900">
