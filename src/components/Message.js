@@ -4,6 +4,11 @@ import Message from '@/lib/validations/message'
 const Message = ({initialMessages, sessionId}) => {
     const [messages, setMessages] = useState(initialMessages)
     const scrollDownRef = useRef(null);
+
+    const formatTimestamp = (timestamp) => {
+      return format(timestamp, 'HH:mm')
+    }
+    
   return (
     <div
      id='messages'
