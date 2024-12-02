@@ -4,14 +4,12 @@ import Button from "@/components/ui/Button";
 import { useState } from "react";
 import {signIn} from 'next-auth/react'
 import toast from "react-hot-toast";
-// import Providers from "@/components/Providers";
 
-const page = ({})=>{
+const Page = ({})=>{
     const[isLoading, setIsLoading] = useState(false);
     async function loginWithGoogle(){
        setIsLoading(true)
        try{
-          //  throw new Error('doesnotmatter')
            await signIn('google')
        }
        catch(error){
@@ -71,4 +69,4 @@ const page = ({})=>{
     </>
 
 }    
-export default page;
+export default Page;

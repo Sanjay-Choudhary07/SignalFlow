@@ -1,7 +1,57 @@
 "use client"
-import React, { useState } from 'react'
-function FriendRequests() {
-  const[friendRequests, setFriendRequests] = useState();
+import React, { useState, useEffect } from 'react'
+import { pusherClient } from '@/lib/pusher'
+import { toPusherKey } from '@/lib/utils'
+import axios from 'axios'
+import { Check, UserPlus, X } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+function FriendRequests({incomingFriendRequests, sessionId }) {
+  const[friendRequests, setFriendRequests] = useState(incomingFriendRequests);
+  const router = useRouter()
+
+  useEffect(() => {
+    // Subscribe to Pusher channel
+    pusherClient.subscribe(
+      toPusherKey(`user:${sessionId}:incoming_friend_requests`)
+    )
+    console.log("listening to ", `user:${sessionId}:incoming_friend_requests`)
+
+    const friendRequestHandler = ({ senderId, senderEmail }) => {
+      console.log("function got called")
+      setFriendRequests((prev) => [...prev, { senderId, senderEmail }])
+    }
+
+    pusherClient.bind('incoming_friend_requests', friendRequestHandler)
+
+    return () => {
+      // Unsubscribe and unbind on cleanup
+      pusherClient.unsubscribe(
+        toPusherKey(`user:${sessionId}:incoming_friend_requests`)
+      )
+      pusherClient.unbind('incoming_friend_requests', friendRequestHandler)
+    }
+  }, [sessionId])
+
+  const acceptFriend = async (senderId) => {
+    await axios.post('/api/friends/accept', { id: senderId })
+
+    setFriendRequests((prev) =>
+      prev.filter((request) => request.senderId !== senderId)
+    )
+
+    router.refresh()
+  }
+
+  const denyFriend = async (senderId) => {
+    await axios.post('/api/friends/deny', { id: senderId })
+
+    setFriendRequests((prev) =>
+      prev.filter((request) => request.senderId !== senderId)
+    )
+
+    router.refresh()
+  }
+  
   return (
     <>
     {friendRequests.length === 0 ? (

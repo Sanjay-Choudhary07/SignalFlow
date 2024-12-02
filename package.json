@@ -21,10 +21,13 @@
     "nanoid": "^5.0.9",
     "next": "15.0.2",
     "next-auth": "^4.24.10",
+    "pusher": "^5.2.0",
+    "pusher-js": "^8.4.0-rc2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.53.1",
     "react-hot-toast": "^2.4.1",
+    "react-loading-skeleton": "^3.5.0",
     "react-textarea-autosize": "^8.5.5",
     "tailwind-merge": "^2.5.4",
     "zod": "^3.23.8"
