@@ -6,6 +6,20 @@ import { getServerSession } from 'next-auth';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import React from 'react';
+import messageArrayValidator from '@/lib/validations/message';
+
+export async function generateMetadata({ params }) {
+  const session = await getServerSession(authOptions);
+  if (!session) notFound();
+  const [userId1, userId2] = params.chatId.split('--');
+  const { user } = session;
+
+  const chatPartnerId = user.id === userId1 ? userId2 : userId1;
+  const chatPartnerRaw = await fetchRedis('get', `user:${chatPartnerId}`);
+  const chatPartner = JSON.parse(chatPartnerRaw);
+
+  return { title: `FriendZone | ${chatPartner.name} chat` };
+}
 
 async function getChatMessages(chatId) {
     try {
@@ -37,8 +51,8 @@ const page = async ({ params }) => {
         notFound();
     }
 
-    const chatPartnerId = user.id === userId1 ? userId2 : userId1;
-    const chatPartner = await db.get(`user:${chatPartnerId}`);
+    const chatPartnerRaw = await fetchRedis('get', `user:${chatPartnerId}`);
+    const chatPartner = JSON.parse(chatPartnerRaw);  
     const initialMessages = await getChatMessages(chatId);
 
     return (
@@ -68,7 +82,10 @@ const page = async ({ params }) => {
           </div>
         </div>
       </div>
-      <Message sessionId={session.user.id} initialMessages={initialMessages}/>
+      <Message chatId={chatId}
+        chatPartner={chatPartner}
+        sessionImg={session.user.image}
+        sessionId={session.user.id} initialMessages={initialMessages}/>
       <ChatInput chatId={chatId} chatPartner={chatPartner}/>
         </div>
     );
